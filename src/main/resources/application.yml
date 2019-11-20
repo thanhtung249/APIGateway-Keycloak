@@ -1,0 +1,108 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overriden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+# Local configuration file.
+# ===================================================================
+
+spring:
+  application:
+    name: "tungbt-blacklist-in-gateway"
+  profiles:
+    active: non-prod
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  zipkin:
+    base-url: http://localhost:9411
+  sleuth:
+    sampler:
+      percentage: 1.0
+server:
+  context-path: /tungbt-blacklist-in-gateway-service/
+  error:
+    path: /error
+  port: 9090
+zuul:
+  host:
+    socket-timeout-millis: 420000
+  debug: true
+  trace: true
+  ignored-headers: Access-Control-Allow-Credentials, Access-Control-Allow-Origin, Vary
+  ignored-patterns: /info, /health, /error
+  ignored-services: '*'
+  routes:
+    tungbtglobalblacklistservice:
+      path: /tungbt-global-blacklist-scheduler/**
+      url: http://localhost:8080/tungbt-global-blacklist-service/
+      stripPrefix: false
+    tungbtlocalblacklistservice:
+      path: /tungbt-local-blacklist-scheduler/**
+      url: http://localhost:9999/tungbt-local-blacklist-service/
+      stripPrefix: false
+ribbon:
+   eureka:
+    enabled: false
+management:
+  security:
+    enabled: false
+# ===================================================================
+# Protected resource specific properties
+# ===================================================================
+
+keycloak:
+  realm: demo
+  auth-server-url: http://localhost:8180/auth
+  ssl-required: external
+  scope:
+    get: scope:get
+    post: scope:post
+#    put: urn:truemoney.com:scopes:update
+#    delete: urn:truemoney.com:scopes:delete
+  authorized:
+    - tungbt-global-blacklist-scheduler
+    - tungbt-local-blacklist-scheduler
+# ===================================================================
+# App specific properties
+# ===================================================================
+
+application:
+  payment:
+    PAYMENT_PLATFORM_X_API_VERSION: "2017-08-29"
+    PAYMENT_PLATFORM_ISV: "010000000000082394378"
+  acquiring:
+    ACQUIRING_X_API_VERSION: "0"
+    ACQUIRING_ISV: "010000000000082394378"
+  coreservice:
+    CORE_SERVICE_X_ACCESS_KEY: #coreservice_access_key#
+  routes:
+    tungbt-global-blacklist-scheduler:
+      client-id: tungbt-global-blacklist-scheduler
+      credentials:
+        secret: ee581dd4-a708-4c01-aa61-b3c4c7f78f7f
+      routeInfos:
+        POST:
+          - global-blacklists/full-files/schedulers: global-blacklists/full-files/schedulers
+    tungbt-local-blacklist-scheduler:
+      client-id: tungbt-local-blacklist-scheduler
+      credentials:
+        secret: d6818e90-2a76-4bcd-9ef6-a81e2eb2e1b0
+      routeInfos:
+        POST:
+          - local-blacklists/schedulers: local-blacklists/schedulers
+        GET:
+          - local-blacklists/VN: local-blacklists/VN
+          - local-blacklists/TH: local-blacklists/TH
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          netflix: trace

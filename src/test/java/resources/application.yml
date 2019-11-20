@@ -1,0 +1,161 @@
+# ===================================================================
+# Spring Boot configuration.
+#
+# This configuration will be overriden by the Spring profile you use,
+# for example application-dev.yml if you use the "dev" profile.
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+spring:
+  application:
+    name: "acm-backoffice-api-gateway"
+server:
+  context-path: /acm-backoffice-api-gateway
+  error:
+    path: /error
+  port: 8080
+zuul:
+  ignoredPatterns: /info, /health, /error
+  ignoredServices: '*'
+  routes:
+    merchant:
+      path: /acm-merchant-api/**
+      url: http://172.23.254.151:8080/acm-merchant-backoffice-composite/api/
+      stripPrefix: false
+    daemon:
+      path: /daemon/**
+      url: http://apis-pri.tmn-dev.com/acm-aplus-merchant-daemon/
+      stripPrefix: false
+ribbon:
+   eureka:
+    enabled: false
+
+# ===================================================================
+# App specific properties
+# ===================================================================
+
+application:
+  routes:
+    acm-merchant-api:
+      routeInfos:
+        GET:
+          - merchants: v2/merchants
+          - merchants/*: v1/merchants/*
+          - merchants/*/attributes: v1/merchants/*/attributes
+          - merchants/*/shops: v1/merchants/*/shops
+          - merchants/*/shops/*: v1/merchants/*/shops/*
+          - merchants/*/shops/*/attributes: v1/merchants/*/shops/*/attributes
+          - merchants/*/shops/*/qr: v1/merchants/*/shops/*/qr
+          - merchants/qr: v1/merchants/qr
+          - merchants/*/shops/*/*: v1/merchants/*/shops/*/*
+          - merchants/relations: v1/merchants/relations
+          - merchants/relations/tree: v1/merchants/relations/tree
+          - merchants/*/contracts: v1/merchants/*/contracts
+          - merchants/*/documents/*: v1/merchants/*/documents/*
+          - merchants/*/notification: v2/merchants/*/notification
+          - contract/*: v1/contract/*
+          - contracts: v1/contracts
+          - merchants/*/clients: v1/merchants/*/clients
+          - merchants/*/shops/*/attributes: v1/merchants/*/shops/*/attributes
+          - merchants/*/party: v1/merchants/*/party
+
+        PUT:
+          - merchants/*/attributes: v1/merchants/*/attributes
+          - merchants/*/shops/*: v1/merchants/*/shops/*
+          - merchants/*/tmn-keys: v1/merchants/*/tmn-keys
+          - merchants/*: v2/merchants/*
+          - merchants/certify-status/update: v1/merchants/certify-status/update
+          - merchants/*/merchant-status: v1/merchants/*/merchant-status
+          - merchants/*/notification: v2/merchants/*/notification
+          - merchants/*/relations/update: v2/merchants/*/relations/update
+          - merchants/*/apikey: v1/merchants/*/apikey
+        POST:
+          - merchants/*/documents/uploadtoken: v1/merchants/*/documents/uploadtoken
+          - merchants/*/shops: v1/merchants/*/shops
+          - merchants/*/shops/*/*: v1/merchants/*/shops/*/*
+          - merchants/*/tmn-keys: v1/merchants/*/tmn-keys
+          - merchants: v2/merchants
+          - merchants/*/sign-contract: v1/merchants/*/sign-contract
+          - merchants/*/relations/assign: v2/merchants/*/relations/assign
+          - mercgant/shops/*/updateStatus: v1/mercgant/shops/*/updateStatus
+          - merchants/*/shops/*/resizeLogo: v1/merchants/*/shops/*/resizeLogo
+          - merchants/*/shops/*/updateDefaultShop: v1/merchants/*/shops/*/updateDefaultShop
+          - merchants/*/shops/*/updateLogoUrl: v1/merchants/*/shops/*/updateLogoUrl
+          - merchants/*/shops/*/attributes: v1/merchants/*/shops/*/attributes
+          - merchants/*/shops/*/shop_qrs: v1/merchants/*/shops/*/shop_qrs
+          - merchants/*/shops/*/updateStatus: v1/merchants/*/shops/*/updateStatus
+          - contracts/*/expire: v1/contracts/*/expire
+          - kyc/*: v1/kyc/*
+          - merchants/*/clients: v1/merchants/*/clients
+          - merchants/*/shops/*/updateStatus: v1/merchants/*/shops/*/updateStatus
+        DELETE:
+          - merchants: v1/merchants
+          - merchants/*: v1/merchants/*
+          - merchants/*/documents: v2/merchants/*/documents
+    acm-merchant-daemon:
+      routeInfos:
+        GET:
+          - merchants/excel: merchants/excel
+    acm-alipay-api:
+      routeInfos:
+        GET:
+          - reports/transaction: v1/reports/transaction
+          - reports/transaction/export-csv: v1/reports/transaction/export-csv
+          - reports/financial: v1/reports/financial
+          - reports/financial/export-csv: v1/reports/financial/export-csv
+          - reports/reconciliation: v1/reports/reconciliation
+          - reports/operation-file: v1/reports/operation-file
+          - reports/operation-file/download: v1/reports/operation-file/download
+          - reports/payment: v1/reports/payment
+          - reports/payment/export-csv: v1/reports/payment/export-csv
+          - master-merchants: v1/master-merchants
+          - master-merchants/merchant-list: v1/master-merchants
+          - merchant-acquirers: v1/merchant-acquirers
+          - merchant-acquirers/*: v1/merchant-acquirers/*
+          - merchant-acquirers/*/merchants/*/stores: v1/merchant-acquirers/*/merchants/*/stores
+          - merchant-acquirers/*/merchants/*/stores/*: v1/merchant-acquirers/*/merchants/*/stores/*
+          - merchant-acquirers/*/merchants/*/stores/*/qrcode: v1/merchant-acquirers/*/merchants/*/stores/*/qrcode
+          - merchants: v1/merchants
+          - merchants/*: v1/merchants/*
+          - settlement: v1/settlement
+          - industries: v1/industries
+        POST:
+          - merchant-acquirers: v1/merchant-acquirers
+          - merchant-acquirers/*/merchants/*/stores: v1/merchant-acquirers/*/merchants/*/stores
+          - notification/resend: v1/notification/resend
+          - refund: v1/refund
+          - settlement/preview: v1/settlement/preview
+          - settlement/paid: v1/settlement/paid
+        PUT:
+          - merchant-acquirers/*: v1/merchant-acquirers/*
+          - merchant-acquirers/*/merchants/*: v1/merchant-acquirers/*/merchants/*
+          - merchant-acquirers/*/merchants/*/stores/*: v1/merchant-acquirers/*/merchants/*/stores/*
+          - merchant-acquirers/*/merchants/*/approve: v1/merchant-acquirers/*/merchants/*/approve
+          - merchant-acquirers/*/merchants/*/corporate: v1/merchant-acquirers/*/merchants/*/corporate
+          - merchant-acquirers/*/merchants/*/individual: v1/merchant-acquirers/*/merchants/*/individual
+    tmn-data-service:
+      routeInfos:
+        GET:
+          - transaction-history/transactions: v1/transaction-history/transactions
+          - transaction-history/transactions/csv: v1/transaction-history/transactions/csv
+    payment:
+      routeInfos:
+        GET:
+          - payments/*: v1/payments/*
+        POST:
+          - payments/*: v1/payments/*
+          - payments/*/refunds: v1/payments/*/refunds
+    notifications-api:
+      routeInfos:
+        GET:
+          - notifications: v1/notifications
+          - notifications/*: v1/notifications/*
+          - retryLog: v1/retryLog
+          - rawMessages: v1/rawMessages
+          - rawMessages/*: v1/rawMessages/*
+          - badRequests: v1/badRequests
